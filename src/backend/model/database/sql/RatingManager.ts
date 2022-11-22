@@ -27,8 +27,6 @@ export class RatingManager implements IRatingManager {
       .where('photo.name = :mediaName AND directory.name = :dirName', query)
       .getOne();
 
-    console.log(newRating);
-
     photo.metadata.rating = newRating;
 
     await repository.save(photo);
