@@ -12,7 +12,7 @@ import {
   PhotoMetadata,
   PositionMetaData,
 } from '../../../../../../common/entities/PhotoDTO';
-import { Config } from '../../../../../../common/config/public/Config';
+import {Config} from '../../../../../../common/config/public/Config';
 import {
   MediaDTO,
   MediaDTOUtils,
@@ -21,16 +21,17 @@ import {
   VideoDTO,
   VideoMetadata,
 } from '../../../../../../common/entities/VideoDTO';
-import { Utils } from '../../../../../../common/Utils';
-import { QueryService } from '../../../../model/query.service';
-import { MapService } from '../../map/map.service';
+import {Utils} from '../../../../../../common/Utils';
+import {QueryService} from '../../../../model/query.service';
+import {MapService} from '../../map/map.service';
 import {
   SearchQueryTypes,
   TextSearch,
   TextSearchQueryMatchTypes,
 } from '../../../../../../common/entities/SearchQueryDTO';
-import { AuthenticationService } from '../../../../model/network/authentication.service';
-import { LatLngLiteral, marker, Marker, TileLayer, tileLayer } from 'leaflet';
+import {AuthenticationService} from '../../../../model/network/authentication.service';
+import {LatLngLiteral, marker, Marker, TileLayer, tileLayer} from 'leaflet';
+import {RatingService} from "../../../../model/rating.service";
 
 @Component({
   selector: 'app-info-panel',
@@ -52,7 +53,8 @@ export class InfoPanelLightboxComponent implements OnInit, OnChanges {
   constructor(
     public queryService: QueryService,
     public mapService: MapService,
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
+    private ratingService: RatingService
   ) {
     this.mapEnabled = Config.Client.Map.enabled;
     this.searchEnabled =
@@ -85,7 +87,7 @@ export class InfoPanelLightboxComponent implements OnInit, OnChanges {
   }
 
   get Rating(): number {
-    return (this.media as PhotoDTO).metadata.rating;
+    return (this.media as PhotoDTO).metadata.rating || 0;
   }
 
   get PositionData(): PositionMetaData {
@@ -179,6 +181,13 @@ export class InfoPanelLightboxComponent implements OnInit, OnChanges {
       (this.media as PhotoDTO).metadata.positionData.GPSData.latitude &&
       (this.media as PhotoDTO).metadata.positionData.GPSData.longitude
     );
+  }
+
+
+  async setRating(stars: number): Promise<void> {
+    await this.ratingService
+      .updateRating(this.media as PhotoDTO, stars)
+      .catch(console.error);
   }
 
   getPositionText(): string {

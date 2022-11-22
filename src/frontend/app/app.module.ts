@@ -126,6 +126,7 @@ import { GallerySearchFieldComponent } from './ui/gallery/search/search-field/se
 import { GalleryFilterComponent } from './ui/gallery/filter/filter.gallery.component';
 import { GallerySortingService } from './ui/gallery/navigator/sorting.service';
 import { FilterService } from './ui/gallery/filter/filter.service';
+import {RatingService} from "./model/rating.service";
 
 @Injectable()
 export class MyHammerConfig extends HammerGestureConfig {
@@ -302,6 +303,7 @@ Marker.prototype.options.icon = iconDefault;
     SeededRandomService,
     OverlayService,
     QueryService,
+    RatingService,
     DuplicateService,
     FacesService,
     VersionService,

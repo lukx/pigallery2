@@ -24,6 +24,7 @@ import {
   TextSearchQueryMatchTypes,
 } from '../../../../../../common/entities/SearchQueryDTO';
 import {AuthenticationService} from '../../../../model/network/authentication.service';
+import {RatingService} from "../../../../model/rating.service";
 
 export enum PlayBackStates {
   Paused = 1,
@@ -72,7 +73,8 @@ export class ControlsLightboxComponent implements OnDestroy, OnInit, OnChanges {
 
   constructor(
     public fullScreenService: FullScreenService,
-    private authService: AuthenticationService
+    private authService: AuthenticationService,
+    private ratingService: RatingService
   ) {
     this.searchEnabled =
       Config.Client.Search.enabled && this.authService.canSearch();
@@ -110,6 +112,13 @@ export class ControlsLightboxComponent implements OnDestroy, OnInit, OnChanges {
       return null;
     }
     return (this.activePhoto.gridMedia.media as PhotoDTO).metadata.caption;
+  }
+
+  get Rating(): number {
+    if (!this.activePhoto) {
+      return null;
+    }
+    return (this.activePhoto.gridMedia.media as PhotoDTO).metadata.rating;
   }
 
   public containerWidth(): void {
@@ -153,6 +162,28 @@ export class ControlsLightboxComponent implements OnDestroy, OnInit, OnChanges {
         y: this.drag.y,
       };
     }
+  }
+
+  async changeRating(by: number): Promise<void> {
+    if (!this.activePhoto || !this.activePhoto.gridMedia.isPhoto()) {
+      return;
+    }
+
+    if (this.zoom !== 1) {
+      // users might want to do something else with arrow-up when zooming
+      return;
+    }
+
+    const photo = (this.activePhoto.gridMedia.media as PhotoDTO);
+    const oldRating = photo.metadata.rating || 0;
+    const newRating = oldRating + by;
+    if (newRating < 0 || newRating > 5) {
+      return;
+    }
+
+    await this.ratingService
+      .updateRating(photo, newRating)
+      .catch(console.error);
   }
 
   wheel($event: { deltaY: number }): void {
@@ -245,6 +276,12 @@ export class ControlsLightboxComponent implements OnDestroy, OnInit, OnChanges {
       case 'c':
       case 'C':
         this.controllersAlwaysOn = !this.controllersAlwaysOn;
+        break;
+      case 'ArrowUp':
+        this.changeRating(1);
+        break;
+      case 'ArrowDown':
+        this.changeRating(-1);
         break;
       case 'Escape': // escape
         this.closed.emit();

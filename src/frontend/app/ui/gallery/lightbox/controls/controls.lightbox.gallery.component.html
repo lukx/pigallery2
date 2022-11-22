@@ -3,6 +3,9 @@
      #root>
   <div class="controls-caption" *ngIf="Title">{{Title}}</div>
   <div class="controls controls-top">
+    <div class="highlight control-button" *ngIf="Rating">
+      {{Rating}}
+    </div>
     <a class="highlight control-button"
        *ngIf="activePhoto"
        [href]="activePhoto.gridMedia.getMediaPath()"

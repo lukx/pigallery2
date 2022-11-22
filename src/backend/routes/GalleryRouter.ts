@@ -10,6 +10,7 @@ import { SupportedFormats } from '../../common/SupportedFormats';
 import { PhotoConverterMWs } from '../middlewares/thumbnail/PhotoConverterMWs';
 import { ServerTimingMWs } from '../middlewares/ServerTimingMWs';
 import {MetaFileMWs} from '../middlewares/MetaFileMWs';
+import {RatingMWs} from "../middlewares/RatingMWs";
 
 export class GalleryRouter {
   public static route(app: Express): void {
@@ -26,6 +27,7 @@ export class GalleryRouter {
     this.addRandom(app);
     this.addDirectoryList(app);
     this.addDirectoryZip(app);
+    this.addSetRating(app);
 
     this.addSearch(app);
     this.addAutoComplete(app);
@@ -267,6 +269,25 @@ export class GalleryRouter {
       RenderingMWs.renderFile
     );
   }
+
+
+  protected static addSetRating(app: Express): void {
+    app.put(
+      '/api/gallery/content/:mediaPath(*.(' +
+      SupportedFormats.Photos.join('|') +
+      '))/rating',
+      // common part
+      AuthenticationMWs.authenticate,
+      AuthenticationMWs.normalizePathParam('mediaPath'),
+      AuthenticationMWs.authorisePath('mediaPath', false),
+
+      // specific part
+      RatingMWs.updateRating,
+      ServerTimingMWs.addServerTiming,
+      RenderingMWs.renderResult
+    );
+  }
+
 
   protected static addSearch(app: Express): void {
     app.get(

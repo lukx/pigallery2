@@ -15,6 +15,7 @@ import { JobManager } from './jobs/JobManager';
 import { IPreviewManager } from './database/interfaces/IPreviewManager';
 import { ParentDirectoryDTO } from '../../common/entities/DirectoryDTO';
 import { IObjectManager } from './database/interfaces/IObjectManager';
+import {IRatingManager} from "./database/interfaces/IRatingManager";
 
 const LOG_TAG = '[ObjectManagers]';
 
@@ -33,6 +34,7 @@ export class ObjectManagers {
   private jobManager: IJobManager;
   private locationManager: LocationManager;
   private albumManager: IAlbumManager;
+  private ratingManager: IRatingManager;
 
   constructor() {
     this.managers = [];
@@ -170,6 +172,19 @@ export class ObjectManagers {
     this.managers.push(this.jobManager);
   }
 
+
+  get RatingManager(): IRatingManager {
+    return this.ratingManager;
+  }
+
+  set RatingManager(value: IRatingManager) {
+    if (this.ratingManager) {
+      this.managers.splice(this.managers.indexOf(this.ratingManager), 1);
+    }
+    this.ratingManager = value;
+    this.managers.push(this.ratingManager);
+  }
+
   public static getInstance(): ObjectManagers {
     if (this.instance === null) {
       this.instance = new ObjectManagers();
@@ -223,6 +238,8 @@ export class ObjectManagers {
       new (require(`./database/${type}/SharingManager`).SharingManager)();
     ObjectManagers.getInstance().UserManager =
       new (require(`./database/${type}/UserManager`).UserManager)();
+    ObjectManagers.getInstance().RatingManager =
+      new (require(`./database/${type}/RatingManager`).RatingManager)();
     ObjectManagers.getInstance().VersionManager =
       new (require(`./database/${type}/VersionManager`).VersionManager)();
     ObjectManagers.getInstance().JobManager = new JobManager();
